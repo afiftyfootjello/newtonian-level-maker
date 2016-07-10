@@ -11,8 +11,10 @@ For it to work to it's fullest, you MUST insert the three tags in this order (as
 
 Some miscelaneous notes:
 -polygons are limited to 8 vertices (it's a libgdx thing)
+-libgdx only allows convex polygon. Convex means rounded outwards. e.g. full moon=convex, half moon=convex, crescent moon!=convex. No sweat, though! It will automatically make polygons convex if they're not already. It's pretty robust.
 -if you try to break it, you'll probably be able to. No guarantees ^__^
 -it writes to and renames files, so be careful using editors that put a lock on files. I know Eclipse, gedit, and vim are safe.
 -if you can figure out how to avoid spawning hundreds of rectangles to fill the grid, please do! It makes startup slow.
 -if you can figure out how to avoid making so many temp File objects when changing the file name, please do!
 -actually, if you can in any way make something better, i would totally appreciate it. it's a public repo, just don't change the master please! Make a branch.
+

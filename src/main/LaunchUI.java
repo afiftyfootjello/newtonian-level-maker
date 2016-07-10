@@ -57,9 +57,9 @@ public class LaunchUI extends Application{
 
 	VBox input = new VBox();
 	HBox output = new HBox();
-	BorderPane bpMaster = new BorderPane();
+	BorderPane layoutMaster = new BorderPane();
 	HBox title = new HBox();
-	BorderPane grid = new BorderPane();
+	BorderPane gridDisp = new BorderPane();
 	Pane selectPane = new Pane();
 	GridPane gp = new GridPane();
 	HBox xAxis = new HBox();
@@ -74,39 +74,37 @@ public class LaunchUI extends Application{
 		input.setAlignment(Pos.CENTER);
 		output.setAlignment(Pos.CENTER);
 		selectPane.getChildren().add(gp);
-		grid.setCenter(selectPane);
-		grid.setBottom(xAxis);
-		grid.setLeft(yAxis);
+		//selectPane.setPrefSize(paneWidth, paneHeight);
+		gridDisp.setCenter(selectPane);
+		gridDisp.setBottom(xAxis);
+		gridDisp.setLeft(yAxis);
+		
+		
 		xAxis.setAlignment(Pos.BOTTOM_CENTER);
 		yAxis.setAlignment(Pos.BASELINE_LEFT);
 		BorderPane.setMargin(yAxis, new Insets(0,2,0,20));
 		BorderPane.setMargin(input, new Insets(0,0,0,30));
-		BorderPane.setMargin(grid, new Insets(0,30,0,0));
+		BorderPane.setMargin(gridDisp, new Insets(0,30,0,0));
 
-		bpMaster.setCenter(grid);
-		bpMaster.setLeft(input);
-		bpMaster.setBottom(output);
-		bpMaster.setTop(title);
+		layoutMaster.setCenter(gridDisp);
+		layoutMaster.setLeft(input);
+		layoutMaster.setBottom(output);
+		layoutMaster.setTop(title);
 
 
 		//Initialize the grid ----- this takes a long ass time to make 100 rectangles
-		Rectangle[][] cells = new Rectangle[xParts][yParts];
+		//Rectangle[][] cells = new Rectangle[xParts][yParts];
 		for (int i = 0; i <= xParts-1; i++) {
 			for (int j = 0; j<= yParts-1; j++){
-				Rectangle temp = new Rectangle((paneWidth-100)/xParts,(paneHeight-100)/yParts, Color.WHITE);
+				Rectangle temp = new Rectangle((paneWidth-100)/xParts,(paneHeight-70)/yParts, Color.WHITE);
 				temp.setStroke(Color.GRAY);
 				temp.setStrokeWidth(0.1);
-				cells[i][j] = temp;
-				gp.add(cells[i][j], i, j);
+				//cells[i][j] = temp;
+				gp.add(temp, i, j);
+				
 			}
 		}
-
-		//Display title
-		Text header = new Text("Level Builder");
-		header.setStyle("-fx-font-size: 36");
-		header.setTextAlignment(TextAlignment.CENTER);
-		title.getChildren().add(header);
-
+		
 		//Display axes
 		yAxis.setSpacing(8.6*(paneHeight-100)/yParts);//title height plus 10 rectangles
 		for (int i = 0; i <= yParts; i=i+10){
@@ -122,6 +120,12 @@ public class LaunchUI extends Application{
 			temp.setTranslateX(15);
 			xAxis.getChildren().add(temp);
 		}
+		
+		//Display title
+		Text header = new Text("Level Builder");
+		header.setStyle("-fx-font-size: 36");
+		header.setTextAlignment(TextAlignment.CENTER);
+		title.getChildren().add(header);
 
 		//Display output
 		outputText.setTextAlignment(TextAlignment.CENTER);
@@ -183,7 +187,7 @@ public class LaunchUI extends Application{
 
 		export.setOnAction(e2 -> {
 			FileChooser fc = new FileChooser();
-			fc.setTitle("Choose a Java file to write coordinates to.");
+			fc.setTitle("Which file do you want to write the polygons to?");
 			fc.setInitialDirectory(new File("/home/kyle/git/newtonian/core/src/com/jello/newtonian"));
 			File dest = fc.showOpenDialog(stage);
 
@@ -289,51 +293,13 @@ public class LaunchUI extends Application{
 		});
 
 		//Create Scene and stage and display and stuff
-		Scene scene = new Scene(bpMaster);
+		Scene scene = new Scene(layoutMaster);
 		stage.setTitle("Newtonian Level Builder");
 		stage.setScene(scene);
 		stage.show();
 	}
 
 	public static void main(String[] args) {launch(args);}
-
-	public double InertiaCalc(Rectangle[] rectangleArray){
-		int length = rectangleArray.length;
-		double[] Yarray = new double [length];
-		double Ytop = 0;
-		double[] widtharray = new double [length];
-		double[] heightarray = new double [length];
-		double[] areaarray = new double [length];
-		double NAnum = 0;
-		double NAdenom = 0;
-		double Inertia = 0;
-
-		for(int i = 0; i <= (length-1); i++){
-			Yarray[i] = rectangleArray[i].getY();
-
-			if( Ytop < Yarray[i]){
-				Ytop = Yarray[i];
-			}
-
-			heightarray[i] = rectangleArray[i].getHeight();
-			widtharray[i] = rectangleArray[i].getWidth();
-			areaarray[i] = (heightarray[i]*widtharray[i]);
-		}
-
-		for(int i = 0; i<= (length-1); i++){
-			NAnum = NAnum + areaarray[i]*(Ytop-Yarray[i]+heightarray[i]/2);
-			NAdenom = NAdenom +areaarray[i];
-		}
-
-		double YNeutralAxis = Ytop-NAnum/NAdenom;
-
-		for(int i = 0; i<= (length-1); i++){
-			double deltaY = YNeutralAxis - (Yarray[i]-heightarray[i]/2);
-			Inertia = Inertia + (0.0833333333333333333333333333333)*
-					areaarray[i]*(heightarray[i])*(heightarray[i]) + areaarray[i]*deltaY*deltaY;
-		}
-		return Inertia;
-	}
 
 	private void addPolyPoint(double roundX, double roundY){
 		//round the input to the nearest grid unit. 
@@ -460,7 +426,6 @@ public class LaunchUI extends Application{
 			
 			//open a writer on the temporary construction file in the same directory
 			File tempDest = new File(original.substring(0, original.lastIndexOf("/")+1)+"print_tester.txt");
-			System.out.println(tempDest.getAbsolutePath());
 			FileWriter fw = new FileWriter(tempDest);
 			BufferedWriter bw = new BufferedWriter(fw);
 			
@@ -473,19 +438,22 @@ public class LaunchUI extends Application{
 			pnumI = pnum;
 			notFound = true;
 			while(notFound && (tempLine = br.readLine()) != null){
-				bw.write(tempLine);
-				bw.newLine();
-				System.out.println(tempLine);
-				tempLine = tempLine.trim();//trim away tabs
-				//when we find the tag, print the method calls to the temp file
 
-				if(tempLine.equals("//#body-defs")){
+				//when we find the tag, print the method calls to the temp file
+				if(tempLine.trim().equals("//#body-defs")){
 					
 					for(Polygon p : plys){
-						bw.write("\n\tBody poly"+pnumI+";");
+						bw.write("\tBody poly"+pnumI+";\n");
 						pnumI++;
 					}
 					notFound = false;
+					//put the tag back at the end for future polygons
+					bw.write("\t//#body-defs");
+					bw.newLine();
+					
+				}else{
+					bw.write(tempLine);
+					bw.newLine();
 				}
 			}
 
@@ -493,18 +461,20 @@ public class LaunchUI extends Application{
 			pnumI = pnum;
 			notFound = true;
 			while(notFound && (tempLine = br.readLine()) != null){
-				bw.write(tempLine);
-				bw.newLine();
-				System.out.println(tempLine);
-				tempLine = tempLine.trim();//trim away tabs
+				
 				//when we find the tag, print the method calls to the temp file
-
-				if(tempLine.equals("//#element-spawn-methods")){
+				if(tempLine.trim().equals("//#element-spawn-methods")){
 					for(Polygon p : plys){
-						bw.write("\n\tspawnStaticPoly"+pnumI+"();");
+						bw.write("\t\tspawnStaticPoly"+pnumI+"();\n");
 						pnumI++;
 					}
 					notFound = false;
+					//put the tag back at the end for future polygons
+					bw.write("\t\t//#element-spawn-methods");
+					bw.newLine();
+				}else{
+					bw.write(tempLine);
+					bw.newLine();
 				}
 			}
 			
@@ -512,12 +482,9 @@ public class LaunchUI extends Application{
 			pnumI = pnum;
 			notFound = true;
 			while(notFound && (tempLine = br.readLine()) != null){
-				bw.write(tempLine);
-				bw.newLine();
-				System.out.println(tempLine);
-				tempLine = tempLine.trim();//trim away tabs
+				
 				//when we find the tag, print the method declarations to the temp file
-				if(tempLine.equals("//#method-declarations")){
+				if(tempLine.trim().equals("//#method-declarations")){
 					for(Polygon p : plys){
 						String vertices="";
 						boolean isX=true;
@@ -535,17 +502,23 @@ public class LaunchUI extends Application{
 						}
 
 						//write the source code to the temp file
-						bw.write("\nprivate void spawnStaticPoly"+pnumI+"(){\n"
-								+ "\tBodyDef poly"+pnumI+"Def = new BodyDef();\n"
-								+ "\tpoly"+pnumI+" = level1.createBody(poly"+pnumI+"Def);//needs to be a class var\n"
-								+ "\tPolygonShape p"+pnumI+" = new PolygonShape();\n"
-								+ "\tfloat[] vertices = {"+vertices+"};\n"
-								+ "\tp"+pnumI+".set(vertices);\n"
-								+ "\tpoly"+pnumI+".createFixture(p"+pnumI+", 0.0f);\n"
-								+ "\tp"+pnumI+".dispose();\n}\n\n");
+						bw.write("\tprivate void spawnStaticPoly"+pnumI+"(){\n"
+								+ "\t\tBodyDef poly"+pnumI+"Def = new BodyDef();\n"
+								+ "\t\tpoly"+pnumI+" = level1.createBody(poly"+pnumI+"Def);//needs to be a class var\n"
+								+ "\t\tPolygonShape p"+pnumI+" = new PolygonShape();\n"
+								+ "\t\tfloat[] vertices = {"+vertices+"};\n"
+								+ "\t\tp"+pnumI+".set(vertices);\n"
+								+ "\t\tpoly"+pnumI+".createFixture(p"+pnumI+", 0.0f);\n"
+								+ "\t\tp"+pnumI+".dispose();\n\t}\n");
 						pnumI++;
 					}
 					notFound=false;
+					//put the tag back at the end for future polygons
+					bw.write("\t//#method-declarations");
+					bw.newLine();
+				}else{
+					bw.write(tempLine);
+					bw.newLine();
 				}
 			}
 			
