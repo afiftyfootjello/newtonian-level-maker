@@ -47,8 +47,8 @@ public class LaunchUI extends Application{
 	boolean polyClosed=false;//is the current polygon complete yet?
 
 	//how many dimensionless units we want to subdivide our grid into
-	int xParts = 100; 
-	int yParts = 70;
+	int xParts = 150; 
+	int yParts = 100;
 
 	//right now, the grid has a defined size. Can be scalable in a later release
 	//basically make each rectangle 10 pixels
